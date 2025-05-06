@@ -1,50 +1,163 @@
 from django.db import models
 
-# Create your models here.
-
-
 
 class ItemAvailablity(models.TextChoices):
-    IN_STOCK = ("IN_S" ,"in_stock")
-    OUT_OF_STOCK = ("OUT_S","out_of_stock")
-    
+    IN_STOCK = ("IN_S", "in_stock")
+    OUT_OF_STOCK = ("OUT_S", "out_of_stock")
 
+class condition(models.TextChoices): 
+    NEW = ("NEW", "new")
+    USED = ("USED", "used")
+    REFURBISHED = ("REFURBISHED", "refurbished") 
 
+class ItemGroup(models.Model):
+    name = models.CharField(null=False, blank=False, unique=True)
+    remarks = models.CharField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
-class ItemGroup(models.Model): 
-    name = models.CharField(null=False,blank=False,unique=True)
-    remarks = models.CharField(null=True,blank=True)
-    
     def __str__(self):
         return str(self.name)
-    
 
-class ProductItems(models.Model): 
-    product_id = models.CharField(null=False,blank=False,unique=True)
-    title = models.CharField(max_length=250,null=False,blank=False)
-    image_link = models.CharField(max_length=250,null=False,blank=False)
-    description = models.TextField(null=True,Blank=True)
-    link = models.CharField(max_length=250,null=False,blank=False)
-    price = models.CharField(null=False,blank=False)
-    sale_price =  models.CharField(null=False,blank=False) 
-    shipping_cost =  models.CharField(null=False,blank=False) 
-    item_group = models.ForeignKey("ItemGroup",on_delete=models.SET_NULL,related_name="item_group",)
-    availability = models.CharField(choices=ItemAvailablity.choices,default=ItemAvailablity.OUT_OF_STOCK)
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
 
+class Brand(models.Model):
+    name = models.CharField(null=False, blank=False, unique=True)
+    remarks = models.CharField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return str(self.name)
+
+
+class Gender(models.Model):
+    name = models.CharField(null=False, blank=False, unique=True)
+    remarks = models.CharField(null=True, blank=True)
+
+    def __str__(self):
+        return str(self.name)
+
+
+
+class Color(models.Model):
+    name = models.CharField(null=False, blank=False, unique=True)
+    remarks = models.CharField(null=True, blank=True)
+
+    def __str__(self):
+        return str(self.name)
+
+
+
+
+
+class Pattern(models.Model):
+    name = models.CharField(null=False, blank=False, unique=True)
+    remarks = models.CharField(null=True, blank=True)
+
+    def __str__(self):
+        return str(self.name)
+
+
+
+class GoogleProdcutCatagory(models.Model):
+    name = models.CharField(null=False, blank=False, unique=True)
+    description = models.TextField(null=True, blank=True)
+    remarks = models.CharField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return str(self.name)
+
+
+class Material(models.Model):
+
+    name = models.CharField(null=False, blank=False, unique=True)
+    description = models.TextField(null=True, blank=True)
+    remarks = models.CharField(null=True, blank=True)
+
+    def __str__(self):
+        return str(self.name)
+
+
+class ProductType(models.Model):
+    name = models.CharField(null=False, blank=False, unique=True)
+    description = models.TextField(null=True, blank=True)
+    remarks = models.CharField(null=True, blank=True)
+
+    def __str__(self):
+        return str(self.name)
+
+
+class MaxHandlingTime(models.Model):
+    start_time = models.CharField(null=False, blank=False, unique=True)
+    end_time = models.CharField(null=False, blank=False, unique=True)
+    remarks = models.CharField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return str(self.name)
+
+
+class ProductItem(models.Model):
+    product_id = models.CharField(null=False, blank=False, unique=True)
+    title = models.CharField(max_length=250, null=False, blank=False)
+    image = models.CharField(max_length=300, null=False, blank=False)
+    additional_image = models.CharField(max_length=300, null=False, blank=False)
+    lifestype_image_link = models.CharField(max_length=300, null=False, blank=False)
+    description = models.TextField(null=True, blank=True)
+    link = models.CharField(max_length=250, null=False, blank=False)
+    price = models.CharField(null=False, blank=False)
+    sale_price = models.CharField(null=False, blank=False)
+    shipping_cost = models.CharField(null=False, blank=False)
+    item_group = models.ForeignKey(
+        "ItemGroup", related_name="item", on_delete=models.DO_NOTHING
+    )
+    availability = models.CharField(
+        choices=ItemAvailablity.choices, default=ItemAvailablity.OUT_OF_STOCK
+    )
+    brand = models.ForeignKey("Brand", related_name="item", on_delete=models.CASCADE)
+    gtin = models.IntegerField(unique=True)
+    gender = models.ForeignKey(
+        "Gender", related_name="item", on_delete=models.DO_NOTHING
+    )
+    google_product_catagories = models.ForeignKey(
+        "GoogleProdcutCatagory", related_name="item", on_delete=models.DO_NOTHING
+    )
+    product_type = models.ForeignKey(
+        "ProductType", related_name="item", on_delete=models.DO_NOTHING
+    )
+
+    material = models.ForeignKey(
+        "Material", related_name="item", on_delete=models.DO_NOTHING
+    )
+
+    pattern = models.ForeignKey(
+        "Pattern", related_name="item", on_delete=models.DO_NOTHING
+    )
+    color = models.ForeignKey("Color", related_name="item", on_delete=models.DO_NOTHING)
+    product_length = models.CharField(null=True, blank=True)
+    product_width = models.CharField(null=True, blank=True)
+    product_height = models.CharField(null=True, blank=True)
+    product_weight = models.CharField(null=True, blank=True)
+    size = models.CharField(null=True, blank=True)
+    max_handling_time = models.ForeignKey(
+        "MaxHandlingTime", related_name="item", on_delete=models.DO_NOTHING
+    )
+    is_bundle = models.CharField(choices=[
+        ("YES", "yes"),
+        ("NO", "no"), 
+        ],default="NO"
+    )
+    model = models.CharField(null=True, blank=True,unique=True)  
+    condition = models.CharField(
+        choices=condition.choices, default=condition.NEW
+    ) 
+    created_at = models.DateTimeField(auto_now_add=True)  
+    updated_at = models.DateTimeField(auto_now=True) 
+    
+    
 
 class Logs(models.Model):
-    pass 
- 
-
-
- 
+    pass
