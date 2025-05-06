@@ -1,0 +1,29 @@
+[project]
+name = "excel-product-data"
+version = "0.1.0"
+description = "To design and implement a Django-based feature that reads and validates an uploaded Excel file containing product data, processes the data efficiently, logs outcomes, and provides analytics through an API."
+authors = [
+    {name = "rex9840",email = "rupeshrnepal@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.11"
+package-mode = false
+dependencies = [
+    "django (>=5.2,<6.0)",
+    "django-import-export (>=4.3.7,<5.0.0)",
+    "openpyxl (>=3.1.5,<4.0.0)",
+    "djangorestframework (>=3.16.0,<4.0.0)",
+    "django-filter (>=25.1,<26.0)",
+    "python-dotenv (>=1.1.0,<2.0.0)",
+    "celery (>=5.5.2,<6.0.0)",
+    "drf-yasg (>=1.21.10,<2.0.0)",
+    "django-celery-results (>=2.6.0,<3.0.0)"
+]
+
+
+
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
