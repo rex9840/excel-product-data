@@ -1,5 +1,10 @@
 from django.db import models
 
+class LogStatus(models.TextChoices):
+    ERROR = ("ERROR", "ERROR")     
+    WARNING = ("WARNING", "WARNING") 
+    INFO = ("INFO", "INFO") 
+
 
 class ItemAvailablity(models.TextChoices):
     IN_STOCK = ("IN_S", "in_stock")
@@ -47,9 +52,6 @@ class Color(models.Model):
         return str(self.name)
 
 
-
-
-
 class Pattern(models.Model):
     name = models.CharField(null=False, blank=False, unique=True)
     remarks = models.CharField(null=True, blank=True)
@@ -95,9 +97,10 @@ class MaxHandlingTime(models.Model):
     remarks = models.CharField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
+    
     def __str__(self):
-        return str(self.name)
+        return str(self.pk)
+ 
 
 
 class ProductItem(models.Model):
@@ -105,7 +108,7 @@ class ProductItem(models.Model):
     title = models.CharField(max_length=250, null=False, blank=False)
     image = models.CharField(max_length=300, null=False, blank=False)
     additional_image = models.CharField(max_length=300, null=False, blank=False)
-    lifestype_image_link = models.CharField(max_length=300, null=False, blank=False)
+    lifestyle_image_link = models.CharField(max_length=300, null=False, blank=False)
     description = models.TextField(null=True, blank=True)
     link = models.CharField(max_length=250, null=False, blank=False)
     price = models.CharField(null=False, blank=False)
@@ -157,7 +160,18 @@ class ProductItem(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)  
     updated_at = models.DateTimeField(auto_now=True) 
     
+    def __str__(self):
+        return  self.product_id
+    
     
 
-class Logs(models.Model):
-    pass
+class Log(models.Model):
+    status = models.CharField(choices=LogStatus.choices,default=LogStatus.INFO) 
+    message = models.CharField(max_length=250)
+    created_at = models.DateTimeField(auto_now_add=True)
+    remarks = models.TextField(null=True,blank=True)
+    
+    def __str__(self):
+        return f"{self.status} {self.created_at} : {self.message}"
+    
+    

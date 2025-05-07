@@ -27,9 +27,11 @@ schema_view = get_schema_view(
         title="excel-product-data",
         default_version="v1",
         description="To design and implement a Django-based feature that reads and validates an uploaded Excel file containing product data, processes the data efficiently, logs outcomes, and provides analytic through an API.",
-        public=True,
-        permission_classes=[AllowAny],
-    )
+    ),
+    public=True,
+    permission_classes=[
+        AllowAny,
+    ],
 )
 
 

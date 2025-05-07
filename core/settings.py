@@ -12,8 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
-
-import django
+from import_export.formats.base_formats import XLSX 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -60,6 +59,19 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+
+REST_FRAMEWORK = {
+    "DEFAULT_RENDERER_CLASSES": [
+        "rest_framework.renderers.JSONRenderer",
+        "rest_framework.renderers.BrowsableAPIRenderer",
+    ],
+    "DEFAULT_FILTER_BACKENDS": [
+        "django_filters.rest_framework.DjangoFilterBackend",
+    ],
+    "DEFAULT_PAGINATION_CLASS": "excel_import_export.paginations.CustomDefaultPagination",
+}
+
 
 ROOT_URLCONF = "core.urls"
 
@@ -167,6 +179,15 @@ LOGGING = {
     "loggers": {
         "django": {
             "handlers": ["console", "log_report"],
-        }
+        },
+        "import_export": {
+                "handlers": ["console"],
+                "level": "INFO",
+            },
     },
 }
+
+
+EXPORT_FORMATS = [
+    XLSX, 
+]
