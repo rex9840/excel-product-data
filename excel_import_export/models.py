@@ -174,7 +174,7 @@ class ProductItem(models.Model):
 
 class Log(models.Model):
     status = models.CharField(choices=LogStatus.choices, default=LogStatus.INFO)
-    message = models.CharField(max_length=250)
+    message = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     remarks = models.TextField(null=True, blank=True)
 

@@ -12,6 +12,7 @@ from excel_import_export.serializers import ProductItemSerializer, UploadSeriali
 
 from . import resources
 from . import models
+from . import utils
 
 
 @swagger_auto_schema(
@@ -51,10 +52,11 @@ def import_excel(request):
     serializer = UploadSerializer(data=request.data) 
     serializer.is_valid(raise_exception=True) 
     serializer.save()
+    file_path = serializer.data["file_path"]
+    utils.serialize_and_save_json(file_path)  
     return Response(
-            serializer.data,status.HTTP_201_CREATED,
+         status =status.HTTP_201_CREATED,
     )
-
 
 
 class ProductItemView(ListCreateAPIView): 

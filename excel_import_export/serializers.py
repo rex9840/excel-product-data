@@ -15,7 +15,7 @@ from .models import (
     ProductType,
     Pattern,
 )
-from .utils import save_temp_file, serialize_and_save_json
+from core.utils import save_temp_file
 from django.db import transaction
 
 
@@ -33,13 +33,12 @@ class UploadSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         file = validated_data.get("file")
+        key = "temp_file_path"
         file_path = save_temp_file(file)
-        # check backend log messages for insertion
-        serialize_and_save_json(file_path)
+        validated_data["file_path"] = file_path
+        validated_data["key"] = key
         return validated_data 
         
-
-
 class ItemGroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = ItemGroup

@@ -8,9 +8,10 @@ import openpyxl
 import logging
 import time
 
-from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
-from . import serializers
+from .serializers import ProductItemSerializer
+
 from . import models
 
 
@@ -29,19 +30,6 @@ class NullValueException(Exception):
 
 
 
-# temp/django_task_data.xlsx
-def save_temp_file(file,folder="temp",**kwargs)-> str: 
-    BASE_DIR = settings.BASE_DIR  
-    temp_dir = BASE_DIR / folder 
-    # creating a temp directory to store the file
-    os.makedirs(temp_dir, exist_ok=True)
-    file_path = os.path.join(temp_dir,file.name)
-    with open(file_path,"wb") as f: 
-        f.write(file.read()) 
-    return file_path 
-    
-
-
 def extract_header(file_path:str)->list[str]: 
     df = pd.read_excel(file_path,nrows=0)    
     headers = df.columns.to_list()
@@ -53,7 +41,6 @@ def extract_header(file_path:str)->list[str]:
 def map_workbook_Json(workbook:Any,start_row:int,stop_row:int)->str:
     worksheet = workbook.active 
     headers = cache.get("excel_headers")
-    print(headers)
     data = []
     row_data = {}
     for row in worksheet.iter_rows(min_row=start_row+1,max_row=stop_row):
@@ -90,7 +77,8 @@ def serialize_and_save_json(filepath:str)->None:
                     data = map_workbook_Json(workbook,start_row,end_row)
                     start_row = end_row 
                 max_row = max_row - MAX_CHUNKS_SIZE 
-                serializer = serializers.ProductItemSerializer(data=data,many=True)         
+                data = json.loads(data) 
+                serializer = ProductItemSerializer(data=data,many=True)         
                 serializer.is_valid(raise_exception=True) 
                 serializer.save() 
                 models.logs.objects.create(
@@ -102,14 +90,14 @@ def serialize_and_save_json(filepath:str)->None:
             except NullValueException as e: 
                 logger.warning(e.message)
                 models.Log.objects.create(
-                    message=e.message, 
+                    message=e.__str__(), 
                     status = models.LogStatus.WARNING
                 )
                 continue 
-            except serializers.ValidataionError as e: 
-                logger.error(e.message)
+            except Exception as e:
+                logger.error(e.__str__()) 
                 models.Log.objects.create(
-                    message=e.message, 
+                    message=e.__str__(), 
                     status = models.LogStatus.ERROR
                 ) 
                 continue 
