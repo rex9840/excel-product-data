@@ -28,7 +28,7 @@ def extract_header(file_path:str)->list[str]:
     cache.set("excel_headers", headers, timeout=settings.CACHE_CULLING_TIMEOUT)
     return headers 
 
-
+# temp/django_task_data.xlsx
 def create_chunk_list(length:int)->list[int]: 
     chunks = []   
     chunk_interval = length//MAX_CHUNKS_SIZE 
@@ -38,11 +38,29 @@ def create_chunk_list(length:int)->list[int]:
         chunks.append(i)
     return chunks
 
+def create_workbook(filepath:str)->Any:
+    workbook = openpyxl.load_workbook(filepath) 
+    cache.set("workbook", workbook, timeout=settings.CACHE_CULLING_TIMEOUT) 
+    return workbook 
+
+
+def map_workbook_Json(workbook:Any,start_row:str,stop_row:str)->list[dict[str,Any]]:
+    worksheet = workbook.active 
+    headers = cache.get("excel_headers")
+    print(headers)
+    data = []
+    row_data = {}
+    for row in worksheet.iter_rows(min_row=start_row+1,max_row=stop_row):
+        for index,cell in enumerate(row): 
+            print(f"cell: {cell}, index: {index}")  
+            print(headers[index]) 
+            if cell.value is not None: 
+                row_data[headers[index]] = cell.value         
+        data.append(row_data) 
+    return data
+
     
-
-
-
-
+    
     
     
     
