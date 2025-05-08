@@ -43,8 +43,10 @@ def map_workbook_Json(workbook:Any,start_row:int,stop_row:int)->str:
     headers = cache.get("excel_headers")
     data = []
     row_data = {}
+    print(start_row,stop_row) 
     for row in worksheet.iter_rows(min_row=start_row+1,max_row=stop_row):
         for index,cell in enumerate(row): 
+            print(cell,cell.value) 
             if cell.value is not None: 
                 if headers[index] == "shipping(country:price)":
                     headers[index] = "shipping_cost"
@@ -56,7 +58,7 @@ def map_workbook_Json(workbook:Any,start_row:int,stop_row:int)->str:
                     row_data[headers[index].lower()] = cell.value         
             else: 
                 raise  NullValueException(f"Null value found in the cell {cell.coordinate}") 
-        data.append(row_data) 
+            data.append(row_data) 
     data = json.dumps(data)
     return data
 
@@ -66,10 +68,10 @@ def serialize_and_save_json(filepath:str)->None:
     workbook = openpyxl.load_workbook(filepath) 
     worksheets = workbook.active
     max_row = worksheets.max_row 
-    start_row = 0
+    start_row = 1
     while(max_row>0): 
             try: 
-                if max_row < MAX_CHUNKS_SIZE: 
+                if max_row < MAX_CHUNKS_SIZE:  
                     end_row = max_row 
                     data = map_workbook_Json(workbook,start_row,end_row)  
                 else: 
@@ -111,6 +113,7 @@ def serialize_and_save_json(filepath:str)->None:
     cache.delete("excel_headers") 
     cache.delete("workbook") 
     os.remove(filepath) 
+
     
 
     
