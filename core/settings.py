@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
-from import_export.formats.base_formats import XLSX 
+from import_export.formats.base_formats import XLSX
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -69,7 +69,7 @@ REST_FRAMEWORK = {
     "DEFAULT_FILTER_BACKENDS": [
         "django_filters.rest_framework.DjangoFilterBackend",
     ],
-    "DEFAULT_PAGINATION_CLASS": "excel_import_export.paginations.CustomDefaultPagination",
+    "DEFAULT_PAGINATION_CLASS": "core.paginations.CustomDefaultPagination",
 }
 
 
@@ -102,6 +102,20 @@ DATABASES = {
         "NAME": BASE_DIR / "db.sqlite3",
     }
 }
+
+
+# CREATE A CACHE TABLE : 
+# python manage.py createcachetable 
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+        "LOCATION": "cache_table",
+    },
+}
+
+
+CACHE_CULLING_TIMEOUT = 60 * 60 * 24  # 1 day 
 
 
 # Password validation
@@ -181,13 +195,13 @@ LOGGING = {
             "handlers": ["console", "log_report"],
         },
         "import_export": {
-                "handlers": ["console"],
-                "level": "INFO",
-            },
+            "handlers": ["console"],
+            "level": "INFO",
+        },
     },
 }
 
 
 EXPORT_FORMATS = [
-    XLSX, 
+    XLSX,
 ]

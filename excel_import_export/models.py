@@ -1,22 +1,25 @@
 from django.db import models
 
+
 class LogStatus(models.TextChoices):
-    ERROR = ("ERROR", "ERROR")     
-    WARNING = ("WARNING", "WARNING") 
-    INFO = ("INFO", "INFO") 
+    ERROR = ("ERROR", "ERROR")
+    WARNING = ("WARNING", "WARNING")
+    INFO = ("INFO", "INFO")
 
 
 class ItemAvailablity(models.TextChoices):
-    IN_STOCK = ("IN_S", "in_stock")
-    OUT_OF_STOCK = ("OUT_S", "out_of_stock")
+    IN_STOCK = ("IN_STOCK", "in_stock")
+    OUT_OF_STOCK = ("OUT_OF_STOCK", "out_of_stock")
 
-class condition(models.TextChoices): 
+
+class ItemCondition(models.TextChoices):
     NEW = ("NEW", "new")
     USED = ("USED", "used")
-    REFURBISHED = ("REFURBISHED", "refurbished") 
+    REFURBISHED = ("REFURBISHED", "refurbished")
+
 
 class ItemGroup(models.Model):
-    name = models.CharField(null=False, blank=False, unique=True)
+    name = models.CharField(null=False, blank=False)
     remarks = models.CharField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -26,7 +29,7 @@ class ItemGroup(models.Model):
 
 
 class Brand(models.Model):
-    name = models.CharField(null=False, blank=False, unique=True)
+    name = models.CharField(null=False, blank=False)
     remarks = models.CharField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -36,16 +39,15 @@ class Brand(models.Model):
 
 
 class Gender(models.Model):
-    name = models.CharField(null=False, blank=False, unique=True)
+    name = models.CharField(null=False, blank=False)
     remarks = models.CharField(null=True, blank=True)
 
     def __str__(self):
         return str(self.name)
 
 
-
 class Color(models.Model):
-    name = models.CharField(null=False, blank=False, unique=True)
+    name = models.CharField(null=False, blank=False)
     remarks = models.CharField(null=True, blank=True)
 
     def __str__(self):
@@ -53,16 +55,15 @@ class Color(models.Model):
 
 
 class Pattern(models.Model):
-    name = models.CharField(null=False, blank=False, unique=True)
+    name = models.CharField(null=False, blank=False)
     remarks = models.CharField(null=True, blank=True)
 
     def __str__(self):
         return str(self.name)
 
 
-
 class GoogleProdcutCatagory(models.Model):
-    name = models.CharField(null=False, blank=False, unique=True)
+    name = models.CharField(null=False, blank=False)
     description = models.TextField(null=True, blank=True)
     remarks = models.CharField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -73,8 +74,7 @@ class GoogleProdcutCatagory(models.Model):
 
 
 class Material(models.Model):
-
-    name = models.CharField(null=False, blank=False, unique=True)
+    name = models.CharField(null=False, blank=False)
     description = models.TextField(null=True, blank=True)
     remarks = models.CharField(null=True, blank=True)
 
@@ -83,7 +83,7 @@ class Material(models.Model):
 
 
 class ProductType(models.Model):
-    name = models.CharField(null=False, blank=False, unique=True)
+    name = models.CharField(null=False, blank=False)
     description = models.TextField(null=True, blank=True)
     remarks = models.CharField(null=True, blank=True)
 
@@ -92,19 +92,18 @@ class ProductType(models.Model):
 
 
 class MaxHandlingTime(models.Model):
-    start_time = models.CharField(null=False, blank=False, unique=True)
-    end_time = models.CharField(null=False, blank=False, unique=True)
+    start_time = models.CharField(null=False, blank=False)
+    end_time = models.CharField(null=False, blank=False)
     remarks = models.CharField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
     def __str__(self):
         return str(self.pk)
- 
 
 
 class ProductItem(models.Model):
-    product_id = models.CharField(null=False, blank=False, unique=True)
+    id = models.CharField(null=False, blank=False,primary_key=True)
     title = models.CharField(max_length=250, null=False, blank=False)
     image = models.CharField(max_length=300, null=False, blank=False)
     additional_image = models.CharField(max_length=300, null=False, blank=False)
@@ -121,11 +120,11 @@ class ProductItem(models.Model):
         choices=ItemAvailablity.choices, default=ItemAvailablity.OUT_OF_STOCK
     )
     brand = models.ForeignKey("Brand", related_name="item", on_delete=models.CASCADE)
-    gtin = models.IntegerField(unique=True)
+    gtin = models.CharField(max_length=250)
     gender = models.ForeignKey(
         "Gender", related_name="item", on_delete=models.DO_NOTHING
     )
-    google_product_catagories = models.ForeignKey(
+    google_product_catagory = models.ForeignKey(
         "GoogleProdcutCatagory", related_name="item", on_delete=models.DO_NOTHING
     )
     product_type = models.ForeignKey(
@@ -139,7 +138,11 @@ class ProductItem(models.Model):
     pattern = models.ForeignKey(
         "Pattern", related_name="item", on_delete=models.DO_NOTHING
     )
-    color = models.ForeignKey("Color", related_name="item", on_delete=models.DO_NOTHING)
+    color = models.ForeignKey(
+        "Color",
+        related_name="item",
+        on_delete=models.DO_NOTHING,
+    )
     product_length = models.CharField(null=True, blank=True)
     product_width = models.CharField(null=True, blank=True)
     product_height = models.CharField(null=True, blank=True)
@@ -148,30 +151,32 @@ class ProductItem(models.Model):
     max_handling_time = models.ForeignKey(
         "MaxHandlingTime", related_name="item", on_delete=models.DO_NOTHING
     )
-    is_bundle = models.CharField(choices=[
-        ("YES", "yes"),
-        ("NO", "no"), 
-        ],default="NO"
+    is_bundle = models.CharField(
+        choices=[
+            ("yes", "yes"),
+            ("no", "no"),
+        ],
+        default="no",
     )
-    model = models.CharField(null=True, blank=True,unique=True)  
+    model = models.CharField(max_length=250)
     condition = models.CharField(
-        choices=condition.choices, default=condition.NEW
-    ) 
-    created_at = models.DateTimeField(auto_now_add=True)  
-    updated_at = models.DateTimeField(auto_now=True) 
-    
+        choices=ItemCondition.choices, default=ItemCondition.NEW
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
     def __str__(self):
-        return  self.product_id
-    
-    
+        return str(self.pk)
+
+    class Meta:
+        ordering = ["-pk"]
+
 
 class Log(models.Model):
-    status = models.CharField(choices=LogStatus.choices,default=LogStatus.INFO) 
+    status = models.CharField(choices=LogStatus.choices, default=LogStatus.INFO)
     message = models.CharField(max_length=250)
     created_at = models.DateTimeField(auto_now_add=True)
-    remarks = models.TextField(null=True,blank=True)
-    
+    remarks = models.TextField(null=True, blank=True)
+
     def __str__(self):
         return f"{self.status} {self.created_at} : {self.message}"
-    
-    

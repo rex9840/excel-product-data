@@ -1,10 +1,14 @@
 from django.http import HttpResponse
 from django.shortcuts import render
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes,parser_classes
+from rest_framework.generics import ListCreateAPIView
 from rest_framework import permissions
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
-from rest_framework.views import status
+from rest_framework.views import Response, status
+from rest_framework.parsers import MultiPartParser, FormParser 
+
+from excel_import_export.serializers import ProductItemSerializer, UploadSerializer
 
 from . import resources
 from . import models
@@ -31,3 +35,30 @@ def export_excel(request):
         f'attachment; filename="products.xlsx"'
     )
     return response
+
+
+@swagger_auto_schema(
+    method="post",
+    description="import excel",
+    response=status.HTTP_200_OK,
+    request_body=UploadSerializer,
+    permission_classes=[permissions.AllowAny],
+) 
+@api_view(["POST"]) 
+@permission_classes([permissions.AllowAny]) 
+@parser_classes([MultiPartParser, FormParser]) 
+def import_excel(request): 
+    serializer = UploadSerializer(data=request.data) 
+    serializer.is_valid(raise_exception=True) 
+    serializer.save()
+    return Response(
+            serializer.data,status.HTTP_201_CREATED,
+    )
+
+
+
+class ProductItemView(ListCreateAPIView): 
+    serializer_class = ProductItemSerializer
+    queryset = models.ProductItem.objects.all()
+    
+    

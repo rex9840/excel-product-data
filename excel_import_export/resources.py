@@ -11,7 +11,7 @@ class ProductItemsResoures(resources.ModelResource):
     addtional_image = Field(
         column_name="additional_image", attribute="additional_image"
     )
-    lifestyle_image = Field(column_name="lifestyle_image", attribute="lifestyle_image")
+    lifestyle_image = Field(column_name="lifestyle_image_link", attribute="lifestyle_image_link")
     description = Field(column_name="description", attribute="description")
     link = Field(column_name="link", attribute="link")
     price = Field(column_name="price", attribute="price")
@@ -22,10 +22,10 @@ class ProductItemsResoures(resources.ModelResource):
     brand = Field(column_name="brand", attribute="brand")
     gtin = Field(column_name="gtin", attribute="gtin")
     gender = Field(column_name="gender", attribute="gender")
-    google_product_catagories = Field(
-        column_name="google_product_catagories", attribute="google_product_catagories"
+    google_product_catagory = Field(
+        column_name="google_product_catagory", attribute="google_product_catagory"
     )
-    prodcut_type = Field(column_name="prodcut_type", attribute="prodcut_type")
+    product_type = Field(column_name="product_type", attribute="product_type")
     material = Field(column_name="material", attribute="material")
     pattern = Field(column_name="pattern", attribute="pattern")
     color = Field(column_name="color", attribute="color")
