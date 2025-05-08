@@ -46,7 +46,6 @@ def map_workbook_Json(workbook:Any,start_row:int,stop_row:int)->str:
         row_data = {}
         for index,cell in enumerate(row): 
             if cell.value is not None: 
-                print(cell,cell.value) 
                 if headers[index] == "shipping(country:price)":
                     headers[index] = "shipping_cost"
                 if headers[index] in FOREIGN_KEYS:
@@ -58,7 +57,6 @@ def map_workbook_Json(workbook:Any,start_row:int,stop_row:int)->str:
             else: 
                 raise  NullValueException(f"Null value found in the cell {cell.coordinate}") 
         data.extend([row_data])
-    print(data) 
     data = json.dumps(data)
     return data
 

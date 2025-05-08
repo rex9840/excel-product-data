@@ -9,6 +9,8 @@ from .models import (
     ItemAvailablity,
     ItemCondition,
     ItemGroup,
+    Log,
+    LogStatus,
     Material,
     MaxHandlingTime,
     ProductItem,
@@ -17,6 +19,11 @@ from .models import (
 )
 from core.utils import save_temp_file
 from django.db import transaction
+import logging
+
+
+logger = logging.getLogger() 
+
 
 
 class UploadSerializer(serializers.Serializer):
@@ -98,12 +105,17 @@ class SkipInvalidSerializer(serializers.ListSerializer):
         if not isinstance(data, list):
             raise serializers.ValidationError("Invalid data format. Expected a list.")  
         ret = []
-        self._errors = []
         for item in data: 
             try:
                 ret.append(self.child.run_validation(item))
             except serializers.ValidationError as e:
-                self.errors.append(e.detail) 
+                message = e.__str__() + " for " + item.get("id")
+                logger.error(message)
+                Log.objects.create(
+                    message=message,
+                    status = LogStatus.ERROR
+                ) 
+                continue 
         return ret
         
 
