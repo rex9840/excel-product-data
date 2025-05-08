@@ -5,25 +5,23 @@ from .models import ProductItem
 
 
 class ProductItemsResoures(resources.ModelResource):
-    product_id = Field(column_name="id", attribute="product_id")
+    id = Field(column_name="id", attribute="id")
     title = Field(column_name="title", attribute="title")
-    image = Field(column_name="image", attribute="image")
-    addtional_image = Field(
-        column_name="additional_image", attribute="additional_image"
-    )
+    image_link = Field(column_name="image_link", attribute="image_link") 
+    additional_image_links = Field(column_name="additional_image_links", attribute="additional_image_links")
     lifestyle_image = Field(column_name="lifestyle_image_link", attribute="lifestyle_image_link")
     description = Field(column_name="description", attribute="description")
     link = Field(column_name="link", attribute="link")
     price = Field(column_name="price", attribute="price")
     sale_price = Field(column_name="sale_price", attribute="sale_price")
     shipping_cost = Field(column_name="shipping_cost", attribute="shipping_cost")
-    item_group = Field(column_name="item_group", attribute="item_group")
+    item_group_id = Field(column_name="item_group_id", attribute="item_group_id")
     availability = Field(column_name="availability", attribute="availability")
     brand = Field(column_name="brand", attribute="brand")
     gtin = Field(column_name="gtin", attribute="gtin")
     gender = Field(column_name="gender", attribute="gender")
-    google_product_catagory = Field(
-        column_name="google_product_catagory", attribute="google_product_catagory"
+    google_product_category = Field(
+        column_name="google_product_category", attribute="google_product_category"
     )
     product_type = Field(column_name="product_type", attribute="product_type")
     material = Field(column_name="material", attribute="material")

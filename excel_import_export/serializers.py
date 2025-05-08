@@ -16,8 +16,7 @@ from .models import (
     Pattern
 )
 from .utils import save_temp_file
-from django.core.cache import cache
-from django.conf import settings
+from django.db import transaction
 
 
 class UploadSerializer(serializers.Serializer):
@@ -36,7 +35,6 @@ class UploadSerializer(serializers.Serializer):
         file = validated_data.get("file")
         key = "temp_file_path"
         file_path = save_temp_file(file)
-        cache.set(key, file_path,settings.CACHE_CULLING_TIMEOUT)
         validated_data["file_path"] = file_path
         validated_data["key"] = key
         return validated_data
@@ -97,10 +95,10 @@ class MaxHandelingtimeSerializer(serializers.ModelSerializer):
 
 
 class ProductItemSerializer(serializers.ModelSerializer):
-    item_group = ItemGroupSerializer()
+    item_group_id = ItemGroupSerializer()
     brand = BrandSerializer()
     gender = GenderSerializer()
-    google_product_catagory = GoogleProductCatagorySerializer()
+    google_product_category = GoogleProductCatagorySerializer()
     product_type = ProductTypeSerializer()
     material = MaterialSerializer()
     pattern = PatternSerializer()
@@ -138,8 +136,10 @@ class ProductItemSerializer(serializers.ModelSerializer):
                 "Invalid value for is_bundle. Must be either 'YES' or 'NO'"
             )
         return value 
-
+    
+    @transaction.atomic
     def create(self, validated_data):
+         
         validated_data["item_group"],_ = ItemGroup.objects.get_or_create(
             **validated_data["item_group"]
         )

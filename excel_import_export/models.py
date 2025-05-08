@@ -105,15 +105,15 @@ class MaxHandlingTime(models.Model):
 class ProductItem(models.Model):
     id = models.CharField(null=False, blank=False,primary_key=True)
     title = models.CharField(max_length=250, null=False, blank=False)
-    image = models.CharField(max_length=300, null=False, blank=False)
-    additional_image = models.CharField(max_length=300, null=False, blank=False)
+    image_link = models.CharField(max_length=300, null=False, blank=False)
+    additional_image_links = models.CharField(max_length=300, null=False, blank=False)
     lifestyle_image_link = models.CharField(max_length=300, null=False, blank=False)
     description = models.TextField(null=True, blank=True)
     link = models.CharField(max_length=250, null=False, blank=False)
     price = models.CharField(null=False, blank=False)
     sale_price = models.CharField(null=False, blank=False)
     shipping_cost = models.CharField(null=False, blank=False)
-    item_group = models.ForeignKey(
+    item_group_id = models.ForeignKey(
         "ItemGroup", related_name="item", on_delete=models.DO_NOTHING
     )
     availability = models.CharField(
@@ -124,7 +124,7 @@ class ProductItem(models.Model):
     gender = models.ForeignKey(
         "Gender", related_name="item", on_delete=models.DO_NOTHING
     )
-    google_product_catagory = models.ForeignKey(
+    google_product_category = models.ForeignKey(
         "GoogleProdcutCatagory", related_name="item", on_delete=models.DO_NOTHING
     )
     product_type = models.ForeignKey(
