@@ -42,12 +42,11 @@ def map_workbook_Json(workbook:Any,start_row:int,stop_row:int)->str:
     worksheet = workbook.active 
     headers = cache.get("excel_headers")
     data = []
-    row_data = {}
-    print(start_row,stop_row) 
     for row in worksheet.iter_rows(min_row=start_row+1,max_row=stop_row):
+        row_data = {}
         for index,cell in enumerate(row): 
-            print(cell,cell.value) 
             if cell.value is not None: 
+                print(cell,cell.value) 
                 if headers[index] == "shipping(country:price)":
                     headers[index] = "shipping_cost"
                 if headers[index] in FOREIGN_KEYS:
@@ -58,7 +57,8 @@ def map_workbook_Json(workbook:Any,start_row:int,stop_row:int)->str:
                     row_data[headers[index].lower()] = cell.value         
             else: 
                 raise  NullValueException(f"Null value found in the cell {cell.coordinate}") 
-            data.append(row_data) 
+        data.extend([row_data])
+    print(data) 
     data = json.dumps(data)
     return data
 
