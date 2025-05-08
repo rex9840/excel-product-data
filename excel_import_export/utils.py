@@ -83,8 +83,8 @@ def serialize_and_save_json(filepath:str)->None:
                 serializer = ProductItemSerializer(data=data,many=True)         
                 serializer.is_valid(raise_exception=True) 
                 serializer.save() 
-                models.logs.objects.create(
-                        message = f"{serializer.data}",
+                models.Log.objects.create(
+                        message = f"{json.dumps(serializer.validated_data)}",
                         status = models.LogStatus.INFO 
                 )
 

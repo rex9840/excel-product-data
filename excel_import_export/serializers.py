@@ -93,6 +93,22 @@ class MaxHandelingtimeSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class SkipInvalidSerializer(serializers.ListSerializer):
+    def to_internal_value(self, data):
+        if not isinstance(data, list):
+            raise serializers.ValidationError("Invalid data format. Expected a list.")  
+        ret = []
+        self._errors = []
+        for item in data: 
+            try:
+                ret.append(self.child.run_validation(item))
+            except serializers.ValidationError as e:
+                self.errors.append(e.detail) 
+        return ret
+        
+
+
+
 class ProductItemSerializer(serializers.ModelSerializer):
     item_group_id = ItemGroupSerializer()
     brand = BrandSerializer()
@@ -168,3 +184,4 @@ class ProductItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductItem
         fields = "__all__"
+        list_serializer_class = SkipInvalidSerializer 
