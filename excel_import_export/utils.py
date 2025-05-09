@@ -27,27 +27,36 @@ class NullValueException(Exception):
 def extract_header(file_path:str)->list[str]: 
     df = pd.read_excel(file_path,nrows=0)    
     headers = df.columns.to_list()
-    headers.append(len(headers)) 
+    print(headers)
     return headers 
 
 
-def map_workbook_Json(workbook:Any,start_row:int,stop_row:int,headers:list[str])->str:
+def map_workbook_Json(workbook:Any,start_row:int,stop_row:int,headers:list[str],start_time:float)->str:
     worksheet = workbook.active 
     data = []
     for row in worksheet.iter_rows(min_row=start_row+1,max_row=stop_row):
         row_data = {}
         for index,cell in enumerate(row): 
-            if cell.value is not None: 
-                if headers[index] == "shipping(country:price)":
-                    headers[index] = "shipping_cost"
-                if headers[index] in FOREIGN_KEYS:
-                    row_data[headers[index].lower()] = {
-                        "name": cell.value
-                    } 
+            try:
+                if cell.value is not None: 
+                    if headers[index] == "shipping(country:price)":
+                        headers[index] = "shipping_cost"
+                    if headers[index] in FOREIGN_KEYS:
+                        row_data[headers[index].lower()] = {
+                            "name": cell.value
+                        } 
+                    else: 
+                        row_data[headers[index].lower()] = cell.value         
                 else: 
-                    row_data[headers[index].lower()] = cell.value         
-            else: 
-                raise  NullValueException(f"Null value found in the cell {cell.coordinate}") 
+                    raise  NullValueException(f"Null value found in the cell {cell.coordinate}") 
+            except NullValueException as e: 
+                logger.warning(e.message)
+                models.Log.objects.create(
+                    message=e.__str__(), 
+                    status = models.LogStatus.WARNING,
+                    remarks = f"WARNING_{start_time}"
+                )
+                continue 
         data.extend([row_data])
     data = json.dumps(data)
     return data
@@ -69,10 +78,10 @@ def serialize_and_save_json(filepath:str)->None:
             try: 
                 if max_row < MAX_CHUNKS_SIZE:  
                     end_row = max_row 
-                    data = map_workbook_Json(workbook,start_row,end_row,headers)
+                    data = map_workbook_Json(workbook,start_row,end_row,headers,start_time)
                 else: 
                     end_row = MAX_CHUNKS_SIZE + start_row
-                    data = map_workbook_Json(workbook,start_row,end_row,headers)
+                    data = map_workbook_Json(workbook,start_row,end_row,headers,start_time)
                     start_row = end_row 
                 max_row = max_row - MAX_CHUNKS_SIZE 
                 data = json.loads(data) 
@@ -80,14 +89,6 @@ def serialize_and_save_json(filepath:str)->None:
                 serializer.is_valid(raise_exception=True) 
                 serializer.save() 
                 
-            except NullValueException as e: 
-                logger.warning(e.message)
-                models.Log.objects.create(
-                    message=e.__str__(), 
-                    status = models.LogStatus.WARNING,
-                    remarks = f"WARNING_{start_time}"
-                )
-                continue 
             except Exception as e:
                 logger.error(e.__str__()) 
                 models.Log.objects.create(
