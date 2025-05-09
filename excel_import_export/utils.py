@@ -36,7 +36,7 @@ def map_workbook_Json(workbook:Any,start_row:int,stop_row:int,headers:list[str],
     data = []
     for row in worksheet.iter_rows(min_row=start_row+1,max_row=stop_row):
         row_data = {}
-        for index,cell in enumerate(row): 
+        for index,cell in enumerate(row[:len(headers)]):  
             try:
                 if cell.value is not None: 
                     if headers[index] == "shipping(country:price)":
