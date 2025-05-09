@@ -37,19 +37,17 @@ def map_workbook_Json(workbook:Any,start_row:int,stop_row:int,headers:list[str],
     for row in worksheet.iter_rows(min_row=start_row+1,max_row=stop_row):
         row_data = {}
         for index,cell in enumerate(row[:len(headers)]):  
-            try:
-                if cell.value is not None: 
-                    if headers[index] == "shipping(country:price)":
-                        headers[index] = "shipping_cost"
-                    if headers[index] in FOREIGN_KEYS:
-                        row_data[headers[index].lower()] = {
-                            "name": cell.value
-                        } 
-                    else: 
-                        row_data[headers[index].lower()] = cell.value         
+            if cell.value is not None: 
+                if headers[index] == "shipping(country:price)":
+                    headers[index] = "shipping_cost"
+                if headers[index] in FOREIGN_KEYS:
+                    row_data[headers[index].lower()] = {
+                        "name": cell.value
+                    } 
                 else: 
-                    raise  NullValueException(f"Null value found in the cell {cell.coordinate}") 
-            except NullValueException as e: 
+                    row_data[headers[index].lower()] = cell.value         
+            else: 
+                e =  NullValueException(f"Null value found in the cell {cell.coordinate}") 
                 logger.warning(e.message)
                 models.Log.objects.create(
                     message=e.__str__(), 
@@ -71,19 +69,32 @@ def serialize_and_save_json(filepath:str)->None:
 
     headers = extract_header(filepath)
     workbook = openpyxl.load_workbook(filepath) 
-    worksheets = workbook.active
-    max_row = worksheets.max_row 
+    worksheets = workbook.active 
+    max_row = worksheets.max_row
+    row_counter = max_row
     start_row = 1
-    while(max_row>0): 
+    while(row_counter>0 or start_row<row_counter):  
             try: 
-                if max_row < MAX_CHUNKS_SIZE:  
-                    end_row = max_row 
+                print("max_row",row_counter) 
+                print("start_row",start_row) 
+                if row_counter < MAX_CHUNKS_SIZE:  
+                    end_row = row_counter 
+                    print("max_row < MAX_CHUNKS_SIZE",row_counter < MAX_CHUNKS_SIZE) 
+                    print("end_row",end_row) 
                     data = map_workbook_Json(workbook,start_row,end_row,headers,start_time)
+                    row_counter = row_counter - MAX_CHUNKS_SIZE 
+                if start_row < max_row:
+                    print("start_row < max_row",start_row < max_row) 
+                    end_row = max_row
+                    print("end_row",end_row) 
+                    data = map_workbook_Json(workbook,start_row,end_row,headers,start_time) 
                 else: 
+                    print("max_row > MAX_CHUNKS_SIZE",row_counter > MAX_CHUNKS_SIZE) 
                     end_row = MAX_CHUNKS_SIZE + start_row
+                    print("end_row",end_row) 
                     data = map_workbook_Json(workbook,start_row,end_row,headers,start_time)
                     start_row = end_row 
-                max_row = max_row - MAX_CHUNKS_SIZE 
+                    row_counter = row_counter - MAX_CHUNKS_SIZE 
                 data = json.loads(data) 
                 serializer = ProductItemSerializer(data=data,many=True)         
                 serializer.is_valid(raise_exception=True) 
