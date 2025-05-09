@@ -5,13 +5,13 @@ import logging
 import time
 from .serializers import ProductItemSerializer
 from . import models
-from .utils import extract_header,map_workbook_Json 
-
+from .utils import extract_header,map_workbook_Json,MAX_CHUNKS_SIZE
 from celery import shared_task
 from core.celery import BaseTaskWithRetry 
 
 
 logger = logging.getLogger() 
+
 
 @shared_task(base=BaseTaskWithRetry)
 def serialize_and_save_json(filepath:str)->None:
