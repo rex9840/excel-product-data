@@ -1,17 +1,11 @@
 import os 
 import json
-from django.core.cache import cache
-from django.conf import settings
 from typing import Any
 import pandas as pd
 import openpyxl
 import logging
 import time
-
-from rest_framework.exceptions import ValidationError
-
 from .serializers import ProductItemSerializer
-
 from . import models
 
 
@@ -34,13 +28,11 @@ def extract_header(file_path:str)->list[str]:
     df = pd.read_excel(file_path,nrows=0)    
     headers = df.columns.to_list()
     headers.append(len(headers)) 
-    cache.set("excel_headers", headers, timeout=settings.CACHE_CULLING_TIMEOUT)
     return headers 
 
 
-def map_workbook_Json(workbook:Any,start_row:int,stop_row:int)->str:
+def map_workbook_Json(workbook:Any,start_row:int,stop_row:int,headers:list[str])->str:
     worksheet = workbook.active 
-    headers = cache.get("excel_headers")
     data = []
     for row in worksheet.iter_rows(min_row=start_row+1,max_row=stop_row):
         row_data = {}
@@ -62,6 +54,12 @@ def map_workbook_Json(workbook:Any,start_row:int,stop_row:int)->str:
 
 def serialize_and_save_json(filepath:str)->None:
     start_time = time.time() 
+    models.Log.objects.create(
+            message = start_time,
+            status = models.LogStatus.INFO,
+            remarks = "START_TIME"
+    )
+
     headers = extract_header(filepath)
     workbook = openpyxl.load_workbook(filepath) 
     worksheets = workbook.active
@@ -71,45 +69,51 @@ def serialize_and_save_json(filepath:str)->None:
             try: 
                 if max_row < MAX_CHUNKS_SIZE:  
                     end_row = max_row 
-                    data = map_workbook_Json(workbook,start_row,end_row)  
+                    data = map_workbook_Json(workbook,start_row,end_row,headers)
                 else: 
                     end_row = MAX_CHUNKS_SIZE + start_row
-                    data = map_workbook_Json(workbook,start_row,end_row)
+                    data = map_workbook_Json(workbook,start_row,end_row,headers)
                     start_row = end_row 
                 max_row = max_row - MAX_CHUNKS_SIZE 
                 data = json.loads(data) 
                 serializer = ProductItemSerializer(data=data,many=True)         
                 serializer.is_valid(raise_exception=True) 
                 serializer.save() 
-                models.Log.objects.create(
-                        message = f"{json.dumps(serializer.validated_data)}",
-                        status = models.LogStatus.INFO 
-                )
-
                 
             except NullValueException as e: 
                 logger.warning(e.message)
                 models.Log.objects.create(
                     message=e.__str__(), 
-                    status = models.LogStatus.WARNING
+                    status = models.LogStatus.WARNING,
+                    remarks = f"WARNING_{start_time}"
                 )
                 continue 
             except Exception as e:
                 logger.error(e.__str__()) 
                 models.Log.objects.create(
                     message=e.__str__(), 
-                    status = models.LogStatus.ERROR
+                    status = models.LogStatus.ERROR,
+                    remarks = f"ERROR_{start_time}" 
                 ) 
                 continue 
     end_time = time.time() 
-    print(f"Time taken to process the file: {end_time - start_time} seconds") 
-    
     models.Log.objects.create(
-            message = f"Time taken to process the file: {end_time - start_time} seconds",
-            status = models.LogStatus.INFO
+            message = end_time,
+            status = models.LogStatus.INFO,
+            remarks = f"END_TIME_{start_time}" 
+    ) 
+    rows_count = models.Log.objects.filter(remarks=f"ITEMS_{start_time}").count()
+    models.Log.objects.create(
+            message = rows_count,
+            status = models.LogStatus.INFO, 
+            remarks=f"ROWS_COUNT_{start_time}"  
+    ) 
+    print(f"Time taken to process the file: {end_time - start_time} seconds")  
+    models.Log.objects.create(
+            message = f"{end_time - start_time}",
+            status = models.LogStatus.INFO,
+            remarks=f"TIME_TAKEN_{start_time}" 
     )
-    cache.delete("excel_headers") 
-    cache.delete("workbook") 
     os.remove(filepath) 
 
     

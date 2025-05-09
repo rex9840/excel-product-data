@@ -5,6 +5,7 @@ class LogStatus(models.TextChoices):
     ERROR = ("ERROR", "ERROR")
     WARNING = ("WARNING", "WARNING")
     INFO = ("INFO", "INFO")
+    SUCCESS = ("SUCESS", "SUCESS") 
 
 
 class ItemAvailablity(models.TextChoices):
@@ -180,3 +181,6 @@ class Log(models.Model):
 
     def __str__(self):
         return f"{self.status} {self.created_at} : {self.message}"
+    
+    class Meta: 
+        ordering = ["-created_at"] 

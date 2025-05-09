@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from openpyxl import workbook
+import json
 
 from .models import (
     Brand,
@@ -99,21 +100,34 @@ class MaxHandelingtimeSerializer(serializers.ModelSerializer):
         model = MaxHandlingTime
         fields = "__all__"
 
+class LogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Log
+        fields = "__all__" 
+
 
 class SkipInvalidSerializer(serializers.ListSerializer):
     def to_internal_value(self, data):
         if not isinstance(data, list):
             raise serializers.ValidationError("Invalid data format. Expected a list.")  
-        ret = []
+        ret = [] 
+        start_time = Log.objects.filter(remarks="START_TIME").first().message
         for item in data: 
             try:
-                ret.append(self.child.run_validation(item))
+                ret.append(self.child.run_validation(item)) 
+                Log.objects.create(
+                        message = f"{json.dumps(item)}", 
+                        status = LogStatus.SUCCESS,
+                        remarks = f"ITEMS_{start_time}"
+                )
+
             except serializers.ValidationError as e:
                 message = e.__str__() + " for " + item.get("id")
                 logger.error(message)
                 Log.objects.create(
                     message=message,
-                    status = LogStatus.ERROR
+                    status = LogStatus.ERROR,
+                    remarks = f"ERROR_{start_time}"  
                 ) 
                 continue 
         return ret

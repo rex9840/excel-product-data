@@ -13,5 +13,15 @@ urlpatterns = [
             ],
         ),
         name="product",
-    )
+    ),
+    path(
+        "logs/",
+        include(
+            [
+                path("", views.LogView.as_view(), name="log-list"),
+                path("latest/stats", views.import_stats, name="log-import-stats"),
+            ],
+        ),
+        name="log",
+    ),
 ]
