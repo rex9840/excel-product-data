@@ -32,7 +32,8 @@ DEBUG = (
 )
 
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+SERVER_HOST = os.environ.get("SERVER_HOST", "localhost") 
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', SERVER_HOST] 
 
 # Application definition
 
