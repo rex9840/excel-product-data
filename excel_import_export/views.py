@@ -17,7 +17,7 @@ from excel_import_export.serializers import (
 
 from . import resources
 from . import models
-from . import utils
+from . import tasks
 
 
 @swagger_auto_schema(
@@ -56,7 +56,7 @@ def import_excel(request):
     serializer.is_valid(raise_exception=True)
     serializer.save()
     file_path = serializer.data["file_path"]
-    utils.serialize_and_save_json(file_path)
+    tasks.serialize_and_save_json.delay(file_path)
     return Response(
         status=status.HTTP_201_CREATED,
     )

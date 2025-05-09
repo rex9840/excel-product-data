@@ -13,10 +13,12 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 from import_export.formats.base_formats import XLSX
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+load_dotenv()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -25,7 +27,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-3xc4*!*sb-)bp+h#hfdqj908%ocbx(n@_8jr9n)_r_*v3pwgih"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = (
+    False if os.environ.get("DEBUG_STATUS", "false").lower() == "false" else True
+)
+
 
 ALLOWED_HOSTS = []
 
@@ -192,7 +197,7 @@ LOGGING = {
     },
     "loggers": {
         "django": {
-            "handlers": ["console", "log_report"],
+            "handlers": ["console", "log_report"] if DEBUG else ["log_report"], 
         },
         "import_export": {
             "handlers": ["console"],
@@ -202,6 +207,19 @@ LOGGING = {
 }
 
 
+
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL") 
+CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND")
+CELERY_ACCEPT_CONTENT = ["json"] 
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 60 * 60 * 2
+
+
+
 EXPORT_FORMATS = [
     XLSX,
 ]
+
