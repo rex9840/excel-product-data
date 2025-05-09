@@ -103,11 +103,6 @@ def serialize_and_save_json(filepath:str)->None:
             remarks = f"END_TIME_{start_time}" 
     ) 
     rows_count = models.Log.objects.filter(remarks=f"ITEMS_{start_time}").count()
-    models.Log.objects.create(
-            message = rows_count,
-            status = models.LogStatus.INFO, 
-            remarks=f"ROWS_COUNT_{start_time}"  
-    ) 
     print(f"Time taken to process the file: {end_time - start_time} seconds")  
     models.Log.objects.create(
             message = f"{end_time - start_time}",

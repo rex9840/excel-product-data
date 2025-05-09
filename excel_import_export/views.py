@@ -71,12 +71,21 @@ def import_excel(request):
 @api_view(["GET"])
 @permission_classes([permissions.AllowAny])
 def import_stats(request):
-    start_time = models.Log.objects.filter(remarks="START_TIME").first().message
+    start_time = models.Log.objects.filter(
+            remarks="START_TIME" 
+    )
+    if not start_time.exists(): 
+        return Response(
+            {"message": "No import process found."},
+            status=status.HTTP_404_NOT_FOUND,
+    ) 
+    start_time = start_time.first().message 
     process_records = models.Log.objects.filter(
-        status=models.LogStatus.SUCCESS,
-    ).count()
+        status=models.LogStatus.INFO, remarks=f"ITEMS_{start_time}"
+    ).count() 
     sucess_save = models.Log.objects.filter(
-        status=models.LogStatus.SUCCESS, remarks=f"ROW_COUNT_{start_time}"
+        status=models.LogStatus.SUCCESS,
+        remarks=f"ITEMS_{start_time}", 
     ).count()
     waring_records = models.Log.objects.filter(
         status=models.LogStatus.WARNING, remarks=f"WARNING_{start_time}"

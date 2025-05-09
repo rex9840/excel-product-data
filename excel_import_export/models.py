@@ -5,7 +5,7 @@ class LogStatus(models.TextChoices):
     ERROR = ("ERROR", "ERROR")
     WARNING = ("WARNING", "WARNING")
     INFO = ("INFO", "INFO")
-    SUCCESS = ("SUCESS", "SUCESS") 
+    SUCCESS = ("SUCCESS", "SUCCESS") 
 
 
 class ItemAvailablity(models.TextChoices):

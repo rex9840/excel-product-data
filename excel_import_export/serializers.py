@@ -23,8 +23,7 @@ from django.db import transaction
 import logging
 
 
-logger = logging.getLogger() 
-
+logger = logging.getLogger()
 
 
 class UploadSerializer(serializers.Serializer):
@@ -45,8 +44,9 @@ class UploadSerializer(serializers.Serializer):
         file_path = save_temp_file(file)
         validated_data["file_path"] = file_path
         validated_data["key"] = key
-        return validated_data 
-        
+        return validated_data
+
+
 class ItemGroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = ItemGroup
@@ -100,25 +100,31 @@ class MaxHandelingtimeSerializer(serializers.ModelSerializer):
         model = MaxHandlingTime
         fields = "__all__"
 
+
 class LogSerializer(serializers.ModelSerializer):
     class Meta:
         model = Log
-        fields = "__all__" 
+        fields = "__all__"
 
 
 class SkipInvalidSerializer(serializers.ListSerializer):
     def to_internal_value(self, data):
         if not isinstance(data, list):
-            raise serializers.ValidationError("Invalid data format. Expected a list.")  
-        ret = [] 
+            raise serializers.ValidationError("Invalid data format. Expected a list.")
+        ret = []
         start_time = Log.objects.filter(remarks="START_TIME").first().message
-        for item in data: 
+        for item in data:
+            Log.objects.create(
+                message=f"{json.dumps(item)}",
+                status=LogStatus.INFO,
+                remarks=f"ITEMS_{start_time}",
+            )
             try:
-                ret.append(self.child.run_validation(item)) 
+                ret.append(self.child.run_validation(item))
                 Log.objects.create(
-                        message = f"{json.dumps(item)}", 
-                        status = LogStatus.SUCCESS,
-                        remarks = f"ITEMS_{start_time}"
+                    message=f"{json.dumps(item)}",
+                    status=LogStatus.SUCCESS,
+                    remarks=f"ITEMS_{start_time}",
                 )
 
             except serializers.ValidationError as e:
@@ -126,13 +132,11 @@ class SkipInvalidSerializer(serializers.ListSerializer):
                 logger.error(message)
                 Log.objects.create(
                     message=message,
-                    status = LogStatus.ERROR,
-                    remarks = f"ERROR_{start_time}"  
-                ) 
-                continue 
+                    status=LogStatus.ERROR,
+                    remarks=f"ERROR_{start_time}",
+                )
+                continue
         return ret
-        
-
 
 
 class ProductItemSerializer(serializers.ModelSerializer):
@@ -210,4 +214,4 @@ class ProductItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductItem
         fields = "__all__"
-        list_serializer_class = SkipInvalidSerializer 
+        list_serializer_class = SkipInvalidSerializer
