@@ -48,11 +48,12 @@ def map_workbook_Json(workbook:Any,start_row:int,stop_row:int,headers:list[str],
                     status = models.LogStatus.WARNING,
                     remarks = f"WARNING_{start_time}"
                 ) 
+                cell.value = ""
             if headers[index] == "shipping(country:price)":
                 headers[index] = "shipping_cost"
             if headers[index] in FOREIGN_KEYS:
                 row_data[headers[index].lower()] = {
-                    "name": cell.value if cell.value else ""
+                    "name": cell.value
                 } 
             else: 
                 row_data[headers[index].lower()] = cell.value         
