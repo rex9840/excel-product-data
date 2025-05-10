@@ -31,7 +31,7 @@ services:
   
   flower:
     image: mher/flower
-    command: ['celery', 'flower', '--port=5555', "--basic-auth=admin@admin.com:admin"]
+    command: ['celery', '--broker=redis://redis:6379', 'flower', '--port=5555', "--basic-auth=admin@admin.com:admin"]
     ports:
       - "7777:5555"
     depends_on:
