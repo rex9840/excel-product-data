@@ -97,7 +97,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "core.wsgi.application"
 
-CSRF_TRUSTED_ORIGINS = ["https://*." +SERVER_HOST] 
+CSRF_TRUSTED_ORIGINS = ["https://" +SERVER_HOST] 
 CORS_ALLOW_ALL_ORIGINS = True
 
 # Database
