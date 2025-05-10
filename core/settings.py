@@ -109,6 +109,8 @@ WSGI_APPLICATION = "core.wsgi.application"
 
 CSRF_TRUSTED_ORIGINS = ["https://" +SERVER_HOST] 
 CORS_ALLOW_ALL_ORIGINS = True
+CSRF_COOKIE_SECURE = not DEBUG  # Send cookies over HTTPS in production
+CSRF_COOKIE_SAMESITE = "Lax"  # Restrict cookies to same-site requests
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
