@@ -1,6 +1,4 @@
 FROM python:3.11.0-slim AS builder
-ARG CELERY_BROKER_URL
-ENV CELERY_BROKER_URL=${CELERY_BROKER_URL}
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
@@ -16,9 +14,6 @@ RUN apt-get update \
 COPY requirements.txt requirements.txt 
 RUN pip install --no-deps --no-cache-dir -r requirements.txt 
 COPY . . 
-
-RUN cp .env.example docker.env 
-
 RUN chmod +x Makefile
 RUN  mkdir /var/log/gunicorn
 RUN chmod  u+w /var/log/gunicorn

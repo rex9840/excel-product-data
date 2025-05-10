@@ -7,7 +7,6 @@ services:
       - "8000:8000"
     env_file: docker.env
     depends_on:
-      - worker
       - redis
     volumes:
       - ./:/app
@@ -28,24 +27,6 @@ services:
     command: redis-server --appendonly yes
     restart: unless-stopped
     networks: 
-      - app_network
-  
-  worker:
-    build:
-      context: .
-    env_file: docker.env
-    command: ["celery", "-A", "core.celery", "worker", "-l", "info", "--concurrency=4", "-B","-Q", "default"] 
-    volumes:
-      - ./:/app 
-    depends_on: 
-      - redis
-    deploy:
-      resources:
-        limits:
-          cpus: '2'
-          memory: 2G
-    restart: unless-stopped
-    networks:
       - app_network
   
   flower:

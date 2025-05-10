@@ -6,3 +6,7 @@ prod:
 	make migration
 	python manage.py collectstatic --no-input 
 	honcho start
+
+server: 
+	cp .env.example docker.env
+	docker compose up --build 
