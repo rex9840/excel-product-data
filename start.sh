@@ -1,4 +1,4 @@
-!#/bin/bash 
+#!/bin/bash
 
 set -e
 python manage.py makemigrations --no-input

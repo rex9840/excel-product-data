@@ -15,11 +15,12 @@ RUN apt-get update \
 COPY requirements.txt requirements.txt 
 RUN pip install --no-deps --no-cache-dir -r requirements.txt 
 COPY . . 
-RUN chmod +x ./start.sh
+RUN chmod +x /app/start.sh
 RUN  mkdir /var/log/gunicorn
 RUN chmod  u+w /var/log/gunicorn
 EXPOSE 8000 
-CMD ["sh","./start.sh"]
+CMD ["sh","/app/start.sh"]
+
 
 
 
