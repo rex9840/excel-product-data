@@ -18,7 +18,7 @@ RUN chmod +x Makefile
 RUN  mkdir /var/log/gunicorn
 RUN chmod  u+w /var/log/gunicorn
 EXPOSE 8000 
-CMD ["make","prod"]
+CMD ["make","run"]
 
 
 

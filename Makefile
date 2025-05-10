@@ -3,7 +3,7 @@ migration:
 	python manage.py migrate --no-input 
 	python manage.py createsuperuseradmin
 
-prod:
+run:
 	make migration
 	python manage.py collectstatic --no-input 
 	honcho start
