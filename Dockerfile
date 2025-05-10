@@ -15,7 +15,7 @@ RUN apt-get update \
 COPY requirements.txt requirements.txt 
 RUN pip install --no-deps --no-cache-dir -r requirements.txt 
 COPY . . 
-CMD mkdir data
+CMD mkdir /app/data/
 RUN chmod +x /app/start.sh
 RUN  mkdir /var/log/gunicorn
 RUN chmod  u+w /var/log/gunicorn
