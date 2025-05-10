@@ -15,8 +15,6 @@ from . import models as app_models
 
 for model in app_models.__dict__.values():
     if isinstance(model, type) and issubclass(model, models.Model):
-        if isinstance(model,app_models.ProductItem):
-            continue 
         admin.site.register(model) 
 
 
