@@ -12,15 +12,14 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 
-COPY Makefile Makefile
 COPY requirements.txt requirements.txt 
 RUN pip install --no-deps --no-cache-dir -r requirements.txt 
 COPY . . 
-RUN chmod +x Makefile
+RUN chmod +x ./start.sh
 RUN  mkdir /var/log/gunicorn
 RUN chmod  u+w /var/log/gunicorn
 EXPOSE 8000 
-CMD ["make","run"]
+CMD ["sh","./start.sh"]
 
 
 

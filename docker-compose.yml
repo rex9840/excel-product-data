@@ -17,7 +17,7 @@ services:
           memory: 2G
     networks: 
       - app_network
-  
+
   redis:
     image: redis:alpine
     ports:
