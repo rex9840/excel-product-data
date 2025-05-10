@@ -117,7 +117,7 @@ class SkipInvalidSerializer(serializers.ListSerializer):
             Log.objects.create(
                 message=f"{json.dumps(item)}",
                 status=LogStatus.INFO,
-                remarks=f"INFO_{start_time}",
+                remarks=f"ITEMS_{start_time}",
             )
             try:
                 ret.append(self.child.run_validation(item))
