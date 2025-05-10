@@ -237,3 +237,9 @@ EXPORT_FORMATS = [
     XLSX,
 ]
 
+
+SUPERUSER_USERNAME = os.environ.get("SUPERUSER_USERNAME", "admin") 
+SUPERUSER_EMAIL = os.environ.get("SUPERUSER_EMAIL", "admin@admin.com")
+SUPERUSER_PASSWORD = os.environ.get("SUPERUSER_PASSWORD", "admin") 
+
+
