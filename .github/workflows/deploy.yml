@@ -24,9 +24,11 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }} 
       
       - name: Build, Tag, and Push Docker Image
-        id: build_and_push  # Set an id to reference outputs
+        id: build_and_push
         run: |
           SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
+
+          echo "SHORT_SHA=$SHORT_SHA" >> $GITHUB_OUTPUT
 
           docker buildx build \
             --platform linux/amd64 \
@@ -34,11 +36,10 @@ jobs:
             -t ghcr.io/rex9840/export-task:$SHORT_SHA \
             --push .
 
-      - name: Deploy Image to CapRrover
+      - name: Deploy Image to CapRover
         uses: caprover/deploy-from-github@v1.1.2
         with:
           server: "${{ secrets.CAPROVER_SERVER }}"
           app: "${{ secrets.APP_NAME }}"
           token: "${{ secrets.APP_TOKEN }}"
-          image: ${{ secrets.IMAGE_URL }}
-
+          image: ghcr.io/rex9840/export-task:${{ steps.build_and_push.outputs.SHORT_SHA }}
