@@ -8,6 +8,7 @@ services:
     env_file: docker.env
     depends_on:
       - redis
+      - postgres
     volumes:
       - ./:/app
     deploy:
@@ -28,7 +29,7 @@ services:
     restart: unless-stopped
     networks: 
       - app_network
-  
+
   flower:
     image: mher/flower
     command: ['celery', '--broker=redis://redis:6379', 'flower', '--port=5555', "--basic-auth=admin@admin.com:admin"]
@@ -40,8 +41,23 @@ services:
     networks:
       - app_network
 
+  postgres:
+    image: postgres:alpine
+    environment:
+      POSTGRES_DB: mydb
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - app_network
+
 volumes:
   redis_data:
+  postgres_data:
 
 networks: 
   app_network:

@@ -45,6 +45,7 @@ def serialize_and_save_json(filepath:str)->None:
                 serializer = ProductItemSerializer(data=data,many=True)         
                 serializer.is_valid(raise_exception=True) 
                 serializer.save() 
+                models.Log.objects.create()
                 
             except Exception as e:
                 logger.error(e.__str__()) 

@@ -114,11 +114,6 @@ class SkipInvalidSerializer(serializers.ListSerializer):
         ret = []
         start_time = Log.objects.filter(remarks="START_TIME").first().message
         for item in data:
-            Log.objects.create(
-                message=f"{json.dumps(item)}",
-                status=LogStatus.INFO,
-                remarks=f"ITEMS_{start_time}",
-            )
             try:
                 ret.append(self.child.run_validation(item))
                 Log.objects.create(
@@ -181,7 +176,6 @@ class ProductItemSerializer(serializers.ModelSerializer):
             )
         return value
 
-    @transaction.atomic
     def create(self, validated_data):
         item_group_id = validated_data.pop("item_group_id")
         brand = validated_data.pop("brand")
@@ -209,7 +203,15 @@ class ProductItemSerializer(serializers.ModelSerializer):
         validated_data["max_handling_time"] = MaxHandlingTime.objects.filter(
             pk=max_handling_time
         ).first()
-        return super().create(validated_data)
+        
+        created = super().create(validated_data)
+        start_time = Log.objects.filter(remarks="START_TIME").first().message
+        Log.objects.create(
+                message= created.pk,
+                status=LogStatus.INFO,
+                remarks=f"ITEMS_{start_time}",
+            )
+        return created
 
     class Meta:
         model = ProductItem
