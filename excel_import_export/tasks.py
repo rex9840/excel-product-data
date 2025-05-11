@@ -61,13 +61,15 @@ def end_task(start_time: float) -> None:
 def map_workbook_Json(
     file_path: str, start_row: int, stop_row: int, headers: list[str], start_time: float
 ) -> None:
+    data = []
     try:
         workbook = openpyxl.load_workbook(file_path)
         worksheet = workbook.active
-        data = []
-        null_counter = 0
         for row in worksheet.iter_rows(min_row=start_row + 1, max_row=stop_row):
             row_data = {}
+            if all(cell.value is None for cell in row): 
+                    raise EmptyRowException(f"Empty row found in the file with row index {row[0].row}") 
+                
             for index, cell in enumerate(row[: len(headers)]):
                 if cell.value is None:
                     e = NullValueException(
@@ -80,7 +82,6 @@ def map_workbook_Json(
                         remarks=f"WARNING_{start_time}",
                     )
                     cell.value = ""
-                    null_counter += 1
                 else:
                     cell.value = cell.value.strip()
                 if headers[index] == "shipping(country:price)":
@@ -90,20 +91,8 @@ def map_workbook_Json(
                     row_data[headers[index].lower()] = {"name": cell.value}
                 else:
                     row_data[headers[index].lower()] = cell.value
-                if null_counter > len(headers):
-                    data.pop() if data else None
-                    empty_rows = list(
-                        models.Log.objects.filter(
-                            status=models.LogStatus.WARNING,
-                            remarks=f"WARNING_{start_time}",
-                        ).values_list("message", flat=True)
-                    )
-                    raise EmptyRowException(f"Empty row found in the file {empty_rows}")
             data.append(row_data)
 
-        serializer = ProductItemSerializer(data=data, many=True)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
 
     except EmptyRowException as e:
         logger.error(e.__str__())
@@ -122,6 +111,9 @@ def map_workbook_Json(
         )
 
     finally:
+        serializer = ProductItemSerializer(data=data, many=True,context ={"start_time": start_time}) 
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         end_task(start_time)
 
 

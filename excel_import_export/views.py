@@ -71,48 +71,42 @@ def import_excel(request):
 @api_view(["GET"])
 @permission_classes([permissions.AllowAny])
 def import_stats(request):
-    try:
-        start_time = models.Log.objects.filter(
-                remarks="START_TIME" 
-        )
-        if not start_time.exists(): 
-            return Response(
-                {"message": "No import process found."},
-                status=status.HTTP_404_NOT_FOUND,
-        ) 
-        start_time = start_time.first().message 
-        process_records = models.Log.objects.filter(
-            status=models.LogStatus.INFO, remarks=f"ITEMS_{start_time}"
-        ).count() 
-        sucess_save = models.Log.objects.filter(
-            status=models.LogStatus.SUCCESS,
-            remarks=f"ITEMS_{start_time}", 
-        ).count()
-        waring_records = models.Log.objects.filter(
-            status=models.LogStatus.WARNING, remarks=f"WARNING_{start_time}"
-        ).count()
-        error_records = models.Log.objects.filter(
-            status=models.LogStatus.ERROR, remarks=f"ERROR_{start_time}"
-        ).count()
-        time_taken = (
-            models.Log.objects.filter(
-                status=models.LogStatus.INFO, remarks=f"TIME_TAKEN_{start_time}"
-            )
-            .first()
-            .message 
-        ) 
-        end_time = (
-            models.Log.objects.filter(
-                status=models.LogStatus.INFO, remarks=f"END_TIME_{start_time}"
-            )
-            .first()
-            .message
-        )
-    except Exception as e:
+    start_time = models.Log.objects.filter(
+            remarks="START_TIME" 
+    )
+    if not start_time.exists(): 
         return Response(
-            {"message": ["An error occurred while fetching import stats, maybe the file is not imported"]},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        ) 
+            {"message": "No import process found."},
+            status=status.HTTP_404_NOT_FOUND,
+    ) 
+    start_time = start_time.first().message 
+    process_records = models.Log.objects.filter(
+        status=models.LogStatus.INFO, remarks=f"ITEMS_{start_time}"
+    ).count() 
+    sucess_save = models.Log.objects.filter(
+        status=models.LogStatus.SUCCESS,
+        remarks=f"ITEMS_{start_time}", 
+    ).count()
+    waring_records = models.Log.objects.filter(
+        status=models.LogStatus.WARNING, remarks=f"WARNING_{start_time}"
+    ).count()
+    error_records = models.Log.objects.filter(
+        status=models.LogStatus.ERROR, remarks=f"ERROR_{start_time}"
+    ).count()
+    time_taken = (
+        models.Log.objects.filter(
+            status=models.LogStatus.INFO, remarks=f"TIME_TAKEN_{start_time}"
+        )
+        .first()
+        .message 
+    ) 
+    end_time = (
+        models.Log.objects.filter(
+            status=models.LogStatus.INFO, remarks=f"END_TIME_{start_time}"
+        )
+        .first()
+        .message
+    )
 
     data = {
         "start_time": start_time,
