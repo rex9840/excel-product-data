@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.http import HttpResponse
 from django.shortcuts import render
 from rest_framework.decorators import api_view, permission_classes, parser_classes
@@ -79,43 +80,40 @@ def import_stats(request):
             {"message": "No import process found."},
             status=status.HTTP_404_NOT_FOUND,
     ) 
-    start_time = start_time.first().message 
+
+    start_time = float(start_time.first().message )
+    end_time = float(models.Log.objects.filter(
+            remarks="END_TIME" 
+    ).first().message )
+    duration = end_time - start_time
+    start_time = datetime.fromtimestamp(start_time).strftime("%Y-%m-%d %H:%M:%S") 
+    end_time = datetime.fromtimestamp(end_time).strftime("%Y-%m-%d %H:%M:%S") 
     process_records = models.Log.objects.filter(
-        status=models.LogStatus.INFO, remarks=f"ITEMS_{start_time}"
+        status=models.LogStatus.INFO,
+        created_at__range=(start_time, end_time), 
     ).count() 
     sucess_save = models.Log.objects.filter(
         status=models.LogStatus.SUCCESS,
-        remarks=f"ITEMS_{start_time}", 
+        created_at__range=(start_time, end_time), 
     ).count()
     waring_records = models.Log.objects.filter(
-        status=models.LogStatus.WARNING, remarks=f"WARNING_{start_time}"
+        status=models.LogStatus.WARNING,
+        created_at__range=(start_time, end_time), 
     ).count()
     error_records = models.Log.objects.filter(
-        status=models.LogStatus.ERROR, remarks=f"ERROR_{start_time}"
+        status=models.LogStatus.ERROR, 
+        created_at__range=(start_time, end_time), 
     ).count()
-    time_taken = (
-        models.Log.objects.filter(
-            status=models.LogStatus.INFO, remarks=f"TIME_TAKEN_{start_time}"
-        )
-        .first()
-        .message 
-    ) 
-    end_time = (
-        models.Log.objects.filter(
-            status=models.LogStatus.INFO, remarks=f"END_TIME_{start_time}"
-        )
-        .first()
-        .message
-    )
+
 
     data = {
         "start_time": start_time,
+        "end_time": end_time, 
+        "duration": duration, 
         "process_records": process_records,
         "sucess_save": sucess_save,
         "waring_records": waring_records,
         "error_records": error_records,
-        "time_taken": time_taken,
-        "end_time": end_time,
     }
 
     return Response(data, status=status.HTTP_200_OK)
