@@ -60,13 +60,9 @@ services:
       - DJANGO_SETTINGS_MODULE=core.settings
 
   flower:
-    env_file: docker.env 
-    image: mher/flower
-    command: >
-      celery -A core flower 
-      --broker=${CELERY_BROKER_URL} 
-      --port=5555 
-      --basic-auth=admin@admin.com:admin
+    image: mher/flower 
+    env_file: docker.env
+    command: ['celery','--broker', '--broker=redis://redis:6379/1', 'flower', '--port=5555']
     ports:
       - "7777:5555"
     depends_on:
