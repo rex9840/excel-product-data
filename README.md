@@ -6,7 +6,11 @@ Tasks: [link](https://docs.google.com/document/d/1gWuUSzC8LrMMXT9I9QqyGcbJbCAiZD
 
 Authors = [rex9840](https://github.com/rex9840)
 
-webiste: [https://task.rupeshnepal.com.np](https://task.rupeshnepal.com.np/swagger/)
+webiste : 
+
+- **swagger** : [https://task.rupeshnepal.com.np](https://task.rupeshnepal.com.np/swagger/)
+- **flower**  : [https://flower.task.rupeshnepal.com.np](https://flower.task.rupeshnepal.com.np/)
+  
 
 ## Sequence Diagram 
 
