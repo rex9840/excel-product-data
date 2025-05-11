@@ -8,6 +8,10 @@ Authors = [rex9840](https://github.com/rex9840)
 
 webiste: [https://task.rupeshnepal.com.np](https://task.rupeshnepal.com.np/swagger/)
 
+## Sequence Diagram 
+![tasks import_export](https://github.com/user-attachments/assets/cb331c4d-61b5-4a74-8440-6dd05b119ac5)
+
+
 
 ## Setup Instruction: 
 ### requires-python = ``>=3.11``
