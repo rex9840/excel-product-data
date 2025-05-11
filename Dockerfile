@@ -16,7 +16,6 @@ COPY requirements.txt requirements.txt
 RUN pip install --no-deps --no-cache-dir -r requirements.txt 
 COPY . . 
 COPY .env.example docker.env
-COPY .env.example .env 
 RUN chmod +x /app/start.sh
 RUN  mkdir /var/log/gunicorn
 RUN chmod  u+w /var/log/gunicorn
