@@ -62,7 +62,7 @@ services:
   flower:
     image: mher/flower 
     env_file: docker.env
-    command: ['celery','--broker', '--broker=redis://redis:6379/1', 'flower', '--port=5555']
+    command: ['celery','--broker=redis://redis:6379/1', 'flower', '--port=5555']
     ports:
       - "7777:5555"
     depends_on:
