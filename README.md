@@ -9,7 +9,9 @@ Authors = [rex9840](https://github.com/rex9840)
 webiste: [https://task.rupeshnepal.com.np](https://task.rupeshnepal.com.np/swagger/)
 
 ## Sequence Diagram 
-![tasks import_export](https://github.com/user-attachments/assets/cb331c4d-61b5-4a74-8440-6dd05b119ac5)
+
+
+![tasks import_export (1)](https://github.com/user-attachments/assets/8a8fa18d-c519-45df-b7d6-135b3cc39d10)
 
 
 
@@ -18,7 +20,8 @@ webiste: [https://task.rupeshnepal.com.np](https://task.rupeshnepal.com.np/swagg
 
 ### dependencies
 ```
-    "django (>=5.2,<6.0)",
+    "django (>=5![tasks import_export (1)](https://github.com/user-attachments/assets/460e291a-ef88-44d2-952a-539a77047b59)
+.2,<6.0)",
     "django-import-export (>=4.3.7,<5.0.0)",
     "openpyxl (>=3.1.5,<4.0.0)",
     "djangorestframework (>=3.16.0,<4.0.0)",
