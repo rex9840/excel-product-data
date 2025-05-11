@@ -129,8 +129,11 @@ class SkipInvalidSerializer(serializers.ListSerializer):
                     status=LogStatus.ERROR,
                     remarks=f"ERROR_{start_time}",
                 )
-                continue
         return ret
+    
+    @transaction.atomic 
+    def create(self, validated_data):
+        return super().create(validated_data)
 
 
 class ProductItemSerializer(serializers.ModelSerializer):
@@ -175,7 +178,6 @@ class ProductItemSerializer(serializers.ModelSerializer):
             )
         return value
 
-    @transaction.atomic
     def create(self, validated_data):
         item_group_id = validated_data.pop("item_group_id")
         brand = validated_data.pop("brand")
@@ -200,9 +202,9 @@ class ProductItemSerializer(serializers.ModelSerializer):
         validated_data["material"], _ = Material.objects.get_or_create(**material)
         validated_data["pattern"], _ = Pattern.objects.get_or_create(**pattern)
         validated_data["color"], _ = Color.objects.get_or_create(**color)
-        validated_data["max_handling_time"] = MaxHandlingTime.objects.filter(
+        validated_data["max_handling_time"],_= MaxHandlingTime.objects.get_or_create(
             pk=max_handling_time
-        ).first()
+        )
 
         created = super().create(validated_data)
         start_time = Log.objects.filter(remarks="START_TIME").first().message

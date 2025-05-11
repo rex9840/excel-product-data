@@ -35,13 +35,11 @@ load_dotenv()
 SECRET_KEY = "django-insecure-3xc4*!*sb-)bp+h#hfdqj908%ocbx(n@_8jr9n)_r_*v3pwgih"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = (
-    False if os.environ.get("DEBUG_STATUS", "false").lower() == "false" else True
-)
+DEBUG = False if os.environ.get("DEBUG_STATUS", "false").lower() == "false" else True
 
 
-SERVER_HOST = os.environ.get("SERVER_HOST", "localhost") 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', SERVER_HOST] 
+SERVER_HOST = os.environ.get("SERVER_HOST", "localhost")
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", SERVER_HOST]
 
 # Application definition
 
@@ -53,7 +51,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # third party applications
-    "corsheaders", 
+    "corsheaders",
     "drf_yasg",
     "rest_framework",
     "django_filters",
@@ -67,7 +65,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    "corsheaders.middleware.CorsMiddleware", 
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -107,44 +105,49 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "core.wsgi.application"
 
-CSRF_TRUSTED_ORIGINS = ["https://" +SERVER_HOST] 
+CSRF_TRUSTED_ORIGINS = ["https://" + SERVER_HOST]
 CORS_ALLOW_ALL_ORIGINS = True
 CSRF_COOKIE_SECURE = not DEBUG  # Send cookies over HTTPS in production
-CSRF_COOKIE_SAMESITE = "Lax"  # Restrict cookies to same-site requests
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# DATABASE_DIR =  BASE_DIR /"data"
-#
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.sqlite3",
-#         "NAME": DATABASE_DIR /  "db.sqlite3",
-#     }
-# }
 
-DB_NAME = os.environ.get("DB_NAME")
-DB_USER = os.environ.get("DB_USER")
-DB_PASS = os.environ.get("DB_PASS")
-DB_HOST = os.environ.get("DB_HOST")
-DB_PORT = os.environ.get("DB_PORT")
+DB_NAME = os.environ.get("DB_NAME","task_db") 
+DB_USER = os.environ.get("DB_USER","postgres") 
+DB_PASS = os.environ.get("DB_PASS","postgres") 
+DB_HOST = os.environ.get("DB_HOST","localhost")
+DB_PORT = os.environ.get("DB_PORT","5432") 
+
 
 DATABASES = {
     "default": {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': DB_NAME,
-        'USER': DB_USER,
-        'PASSWORD': DB_PASS,
-        'HOST': DB_HOST,
-        'PORT': DB_PORT,
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": DB_NAME,
+        "USER": DB_USER,
+        "PASSWORD": DB_PASS,
+        "HOST": DB_HOST,
+        "PORT": DB_PORT,
     }
 }
 
 
-# CREATE A CACHE TABLE : 
-# python manage.py createcachetable 
+
+# DATABASE_DIR = BASE_DIR / "data"
+# os.makedirs(DATABASE_DIR, exist_ok=True)
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": DATABASE_DIR / "db.sqlite3",
+#     }
+# }
+
+
+
+
+# CREATE A CACHE TABLE :
+# python manage.py createcachetable
 
 CACHES = {
     "default": {
@@ -154,7 +157,7 @@ CACHES = {
 }
 
 
-CACHE_CULLING_TIMEOUT = 60 * 60 * 24  # 1 day 
+CACHE_CULLING_TIMEOUT = 60 * 60 * 24  # 1 day
 
 
 # Password validation
@@ -231,7 +234,7 @@ LOGGING = {
     },
     "loggers": {
         "django": {
-            "handlers": ["console", "log_report"] if DEBUG else ["log_report"], 
+            "handlers": ["console", "log_report"] if DEBUG else ["log_report"],
         },
         "import_export": {
             "handlers": ["console"],
@@ -241,10 +244,9 @@ LOGGING = {
 }
 
 
-
-CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL") 
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL")
 CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND")
-CELERY_ACCEPT_CONTENT = ["json"] 
+CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = TIME_ZONE
@@ -252,14 +254,11 @@ CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 60 * 60 * 2
 
 
-
 EXPORT_FORMATS = [
     XLSX,
 ]
 
 
-SUPERUSER_USERNAME = os.environ.get("SUPERUSER_USERNAME", "admin") 
+SUPERUSER_USERNAME = os.environ.get("SUPERUSER_USERNAME", "admin")
 SUPERUSER_EMAIL = os.environ.get("SUPERUSER_EMAIL", "admin@admin.com")
-SUPERUSER_PASSWORD = os.environ.get("SUPERUSER_PASSWORD", "admin") 
-
-
+SUPERUSER_PASSWORD = os.environ.get("SUPERUSER_PASSWORD", "admin")
