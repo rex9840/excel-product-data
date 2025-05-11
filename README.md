@@ -6,6 +6,8 @@ Tasks: [link](https://docs.google.com/document/d/1gWuUSzC8LrMMXT9I9QqyGcbJbCAiZD
 
 Authors = [rex9840](https://github.com/rex9840)
 
+
+
 ## Setup Instruction: 
 ### requires-python = ``>=3.11``
 
@@ -77,7 +79,13 @@ what it does is run docker compose in your local machine spanning ``postgress``,
 | GET    | `/api/v1/excel-import-export/logs/latest/stats` | View latest import statistics |
 
 
+### DEFAULT 
 
+#### SUPERUSER: 
+
+- username: ``admin``
+- password : ``admin``
+- email  : ``admin@admin.com``
 
 
 
