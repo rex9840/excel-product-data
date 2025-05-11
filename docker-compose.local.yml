@@ -38,7 +38,7 @@ services:
       context: .
       dockerfile: ./local/Dockerfile/ 
     env_file: docker.env
-    command: ["celery", "-A","core", "worker", "-l", "debug", "--concurrency=4","-Q","default"] 
+    command: ["celery", "-A","core", "worker", "-l", "debug", "--concurrency=2","-Q","default"] 
     volumes:
       - ./:/app 
     depends_on: 

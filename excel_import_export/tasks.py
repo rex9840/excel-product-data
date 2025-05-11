@@ -8,7 +8,7 @@ from .serializers import ProductItemSerializer
 from . import models
 from celery import shared_task
 from core.celery import BaseTaskWithRetry
-from typing import Any,List
+from typing import Any, List
 
 logger = logging.getLogger()
 
@@ -43,44 +43,86 @@ def extract_header(file_path: str) -> list[str]:
     return headers
 
 
-def map_workbook_Json(
-    workbook: Any, start_row: int, stop_row: int, headers: list[str], start_time: float
-    ) ->str:
-    worksheet = workbook.active
-    data = []
-    null_counter = 0
-    for row in worksheet.iter_rows(min_row=start_row + 1, max_row=stop_row):
-        row_data = {}
-        for index, cell in enumerate(row[: len(headers)]):
-            if cell.value is None:
-                e = NullValueException(
-                    f"Null value found in the cell {cell.coordinate}"
-                )
-                logger.warning(e.message)
-                models.Log.objects.create(
-                    message=e.__str__(),
-                    status=models.LogStatus.WARNING,
-                    remarks=f"WARNING_{start_time}",
-                )
-                cell.value = ""
-                null_counter += 1
-            else: 
-                cell.value = cell.value.strip() 
-            if headers[index] == "shipping(country:price)":
-                headers[index] = "shipping_cost"
+def end_task(start_time: float, file_path: str) -> None:
+    end_time = time.time()
+    models.Log.objects.create(
+        message=end_time, status=models.LogStatus.INFO, remarks="END_TIME"
+    )
+    total_time = end_time - start_time
+    models.Log.objects.create(
+        message=total_time,
+        status=models.LogStatus.INFO,
+        remarks=f"TOTAL_TIME_{file_path}",
+    )
+    logger.info(f"Total time taken: {total_time} seconds")
 
-            if headers[index] in FOREIGN_KEYS:
-                row_data[headers[index].lower()] = {"name": cell.value}
-            else:
-                row_data[headers[index].lower()] = cell.value
-            if null_counter > len(headers): 
-                data.pop() if data else None 
-                empty_rows = list(models.Log.objects.filter(
-                    status=models.LogStatus.WARNING, remarks=f"WARNING_{start_time}"
-                ).values_list("message", flat=True))
-                raise EmptyRowException(f"Empty row found in the file {empty_rows}")
-        data.append(row_data) 
-    return json.dumps(data) 
+
+@shared_task(base=BaseTaskWithRetry)
+def map_workbook_Json(
+    file_path: str, start_row: int, stop_row: int, headers: list[str], start_time: float
+) -> None:
+    try:
+        workbook = openpyxl.load_workbook(file_path)
+        worksheet = workbook.active
+        data = []
+        null_counter = 0
+        for row in worksheet.iter_rows(min_row=start_row + 1, max_row=stop_row):
+            row_data = {}
+            for index, cell in enumerate(row[: len(headers)]):
+                if cell.value is None:
+                    e = NullValueException(
+                        f"Null value found in the cell {cell.coordinate}"
+                    )
+                    logger.warning(e.message)
+                    models.Log.objects.create(
+                        message=e.__str__(),
+                        status=models.LogStatus.WARNING,
+                        remarks=f"WARNING_{start_time}",
+                    )
+                    cell.value = ""
+                    null_counter += 1
+                else:
+                    cell.value = cell.value.strip()
+                if headers[index] == "shipping(country:price)":
+                    headers[index] = "shipping_cost"
+
+                if headers[index] in FOREIGN_KEYS:
+                    row_data[headers[index].lower()] = {"name": cell.value}
+                else:
+                    row_data[headers[index].lower()] = cell.value
+                if null_counter > len(headers):
+                    data.pop() if data else None
+                    empty_rows = list(
+                        models.Log.objects.filter(
+                            status=models.LogStatus.WARNING,
+                            remarks=f"WARNING_{start_time}",
+                        ).values_list("message", flat=True)
+                    )
+                    raise EmptyRowException(f"Empty row found in the file {empty_rows}")
+            data.append(row_data)
+
+        serializer = ProductItemSerializer(data=data, many=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+    except EmptyRowException as e:
+        logger.error(e.__str__())
+        models.Log.objects.create(
+            message=e.__str__(),
+            status=models.LogStatus.ERROR,
+            remarks=f"ERROR_{start_time}",
+        )
+
+    except Exception as e:
+        logger.error(e.__str__())
+        models.Log.objects.create(
+            message=e.__str__(),
+            status=models.LogStatus.ERROR,
+            remarks=f"ERROR_{start_time}",
+        )
+
+    finally:
+        end_task(start_time, file_path)
 
 
 @shared_task(base=BaseTaskWithRetry)
@@ -96,51 +138,29 @@ def serialize_and_save_json(filepath: str) -> None:
     max_row = worksheets.max_row
     row_counter = max_row
     start_row = 1
-    while row_counter > 0 or start_row < row_counter:
-        try:
+    try:
+        while row_counter > 0 or start_row < row_counter:
             if row_counter < MAX_CHUNKS_SIZE:
                 if start_row > row_counter and row_counter < MAX_CHUNKS_SIZE:
                     end_row = max_row
                 else:
                     end_row = row_counter
-                data = map_workbook_Json(
-                    workbook, start_row, end_row, headers, start_time
+                map_workbook_Json.delay(
+                    filepath, start_row, end_row, headers, start_time
                 )
             else:
                 end_row = MAX_CHUNKS_SIZE + start_row
-                data = map_workbook_Json(
-                    workbook, start_row, end_row, headers, start_time
+                map_workbook_Json.delay(
+                    filepath, start_row, end_row, headers, start_time
                 )
                 start_row = end_row
             row_counter = row_counter - MAX_CHUNKS_SIZE
-            data = json.loads(data) 
-            serializer = ProductItemSerializer(data=data, many=True)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-
-        except EmptyRowException as e:
-            logger.error(e.__str__())
-            models.Log.objects.create(
-                message=e.__str__(),
-                status=models.LogStatus.ERROR,
-                remarks=f"ERROR_{start_time}",
-            )
-            break
-        except Exception as e:
-            logger.error(e.__str__())
-            models.Log.objects.create(
-                message=e.__str__(),
-                status=models.LogStatus.ERROR,
-                remarks=f"ERROR_{start_time}",
-            )
-    end_time = time.time()
-    models.Log.objects.create(
-        message=end_time, status=models.LogStatus.INFO, remarks=f"END_TIME_{start_time}"
-    )
-    print(f"Time taken to process the file: {end_time - start_time} seconds")
-    models.Log.objects.create(
-        message=f"{end_time - start_time}",
-        status=models.LogStatus.INFO,
-        remarks=f"TIME_TAKEN_{start_time}",
-    )
-    os.remove(filepath)
+    except Exception as e:
+        logger.error(e.__str__())
+        models.Log.objects.create(
+            message=e.__str__(),
+            status=models.LogStatus.ERROR,
+            remarks=f"ERROR_{start_time}",
+        )
+        end_task(start_time, filepath)
+    os.remove(filepath) 

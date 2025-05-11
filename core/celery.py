@@ -18,7 +18,6 @@ class BaseTaskWithRetry(Task):
     retry_backoff_max = 60 * 5  # 5 minutes
     retry_jitter = True
     options = {"queue": "default"}
-    time_limit = 60 * 5  # 5 minutes
     queue = "default"
     rate_limit = "6/s"
 

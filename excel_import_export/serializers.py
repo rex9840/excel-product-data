@@ -129,6 +129,14 @@ class SkipInvalidSerializer(serializers.ListSerializer):
                     status=LogStatus.ERROR,
                     remarks=f"ERROR_{start_time}",
                 )
+            except Exception as e: 
+                message = e.__str__() + " for " + item.get("id")
+                logger.error(message)
+                Log.objects.create(
+                    message=message,
+                    status=LogStatus.ERROR,
+                    remarks=f"ERROR_{start_time}",
+                ) 
         return ret
     
     @transaction.atomic 
