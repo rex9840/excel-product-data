@@ -112,7 +112,7 @@ class SkipInvalidSerializer(serializers.ListSerializer):
         if not isinstance(data, list):
             raise serializers.ValidationError("Invalid data format. Expected a list.")
         ret = []
-        start_time = Log.objects.filter(remarks="START_TIME").first().message
+        start_time = self.child.context.get("start_time") 
         for item in data:
             Log.objects.create(
                 message=f"{json.dumps(item)}",
