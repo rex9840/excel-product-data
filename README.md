@@ -53,6 +53,28 @@ COMMAND = `` make docker-compose  ``
 
 what it does is run docker compose in your local machine spanning ``postgress``,``celery``,``flower``, ``dockerized backed``
 
+### API DOC
+
+#### Visit 
+
+- ``/swagger/`` for interactive Swagger UI.
+- ``/redocs/`` for api documentation.
+
+
+#### Product Endpoints
+| Method | Endpoint                 | Description                    |
+| ------ | ------------------------ | ------------------------------ |
+| GET    | `/api/v1/excel-import-export/product/`       | List all product items         |
+| POST   | `/api/v1/excel-import-export/product/`       | Create a new product           |
+| GET    | `/api/v1/excel-import-export/product/export` | Export product data to Excel   |
+| POST   | `/api/v1/excel-import-export/product/import` | Import product data from Excel |
+
+
+####  Logs Endpoints
+| Method | Endpoint                    | Description                   |
+| ------ | --------------------------- | ----------------------------- |
+| GET    | `/api/v1/excel-import-export/logs/`             | List all logs                 |
+| GET    | `/api/v1/excel-import-export/logs/latest/stats` | View latest import statistics |
 
 
 
