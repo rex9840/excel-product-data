@@ -43,7 +43,7 @@ def extract_header(file_path: str) -> list[str]:
     return headers
 
 
-def end_task(start_time: float, file_path: str) -> None:
+def end_task(start_time: float) -> None:
     end_time = time.time()
     models.Log.objects.create(
         message=end_time, status=models.LogStatus.INFO, remarks="END_TIME"
@@ -52,7 +52,7 @@ def end_task(start_time: float, file_path: str) -> None:
     models.Log.objects.create(
         message=total_time,
         status=models.LogStatus.INFO,
-        remarks=f"TOTAL_TIME_{file_path}",
+        remarks=f"TOTAL_TIME_{start_time}", 
     )
     logger.info(f"Total time taken: {total_time} seconds")
 
@@ -122,7 +122,7 @@ def map_workbook_Json(
         )
 
     finally:
-        end_task(start_time, file_path)
+        end_task(start_time)
 
 
 @shared_task(base=BaseTaskWithRetry)
@@ -162,5 +162,4 @@ def serialize_and_save_json(filepath: str) -> None:
             status=models.LogStatus.ERROR,
             remarks=f"ERROR_{start_time}",
         )
-        end_task(start_time, filepath)
-    os.remove(filepath) 
+        end_task(start_time)
